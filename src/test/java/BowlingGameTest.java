@@ -1,10 +1,35 @@
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
-import static org.junit.Assert.*;
+import java.util.Collection;
+import java.util.function.Supplier;
 
+import static java.util.Arrays.asList;
+import static org.junit.Assert.assertEquals;
+
+@RunWith(Parameterized.class)
 public class BowlingGameTest {
 
-    private final Game gameUnderTest = new FrameStoringBowlingGame();
+    private final Game gameUnderTest;
+
+    public BowlingGameTest(Supplier<Game> gameConstructor, String ignoredGameClassName) {
+        this.gameUnderTest = gameConstructor.get();
+    }
+
+    @Parameterized.Parameters(name = "{index} : {1}")
+    public static Collection<Object[]> games() {
+        return asList(
+                new Object[] {
+                        (Supplier<Game>) ProceduralSingleDataStructureBowlingGame::new,
+                        ProceduralSingleDataStructureBowlingGame.class.getSimpleName()
+                },
+                new Object[] {
+                        (Supplier<Game>) InheritanceAndFactoryBowlingGame::new,
+                        InheritanceAndFactoryBowlingGame.class.getSimpleName()
+                }
+        );
+    }
 
 
     @Test

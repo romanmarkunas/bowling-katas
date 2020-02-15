@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class FrameStoringBowlingGame implements Game {
+public class ProceduralSingleDataStructureBowlingGame implements Game {
 
     private final List<Frame> frames = new ArrayList<>();
 
@@ -83,7 +83,9 @@ public class FrameStoringBowlingGame implements Game {
         }
 
         public int getScore() {
-            return roll1 + ((roll2 != UNNECESSARY && roll2 != UNKNOWN) ? roll2 : 0) + (last && roll3 != UNKNOWN ? roll3 : 0);
+            return roll1
+                    + ((roll2 != UNNECESSARY && roll2 != UNKNOWN) ? roll2 : 0)
+                    + (last && roll3 != UNKNOWN ? roll3 : 0);
         }
     }
 }
