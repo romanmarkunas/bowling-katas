@@ -4,20 +4,18 @@ import java.util.List;
 public class ProceduralSingleDataStructureBowlingGame implements Game {
 
     private final List<Frame> frames = new ArrayList<>();
+    private Frame currentFrame = null;
 
     @Override
     public void roll(int noOfPins) {
-        Frame currentFrame;
-        if (frames.isEmpty() || frames.get(frames.size() - 1).isComplete()) {
-            currentFrame = new Frame();
+        if (this.currentFrame == null || this.currentFrame.isComplete()) {
+            this.currentFrame = new Frame();
             if (frames.size() == 9) {
                 currentFrame.last = true;
             }
             frames.add(currentFrame);
         }
-        else {
-            currentFrame = frames.get(frames.size() - 1);
-        }
+
         currentFrame.addScore(noOfPins);
     }
 
@@ -44,7 +42,7 @@ public class ProceduralSingleDataStructureBowlingGame implements Game {
         return score;
     }
 
-    class Frame {
+    private static class Frame {
 
         private static final int UNKNOWN = -1;
         private static final int UNNECESSARY = -2;

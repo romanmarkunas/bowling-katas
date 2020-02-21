@@ -27,6 +27,10 @@ public class BowlingGameTest {
                 new Object[] {
                         (Supplier<Game>) InheritanceAndFactoryBowlingGame::new,
                         InheritanceAndFactoryBowlingGame.class.getSimpleName()
+                },
+                new Object[] {
+                        (Supplier<Game>) ProceduralBowlingGame::new,
+                        ProceduralBowlingGame.class.getSimpleName()
                 }
         );
     }
