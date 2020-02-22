@@ -7,68 +7,85 @@ public class ProceduralSingleDataStructureBowlingGame implements Game {
     private Frame currentFrame = null;
 
     @Override
-    public void roll(int noOfPins) {
+    public void roll(int pins) {
         if (this.currentFrame == null || this.currentFrame.isComplete()) {
-            this.currentFrame = new Frame();
-            if (frames.size() == 9) {
-                currentFrame.last = true;
-            }
+            this.currentFrame = new Frame(frames.size() == 9);
             frames.add(currentFrame);
         }
-
-        currentFrame.addScore(noOfPins);
+        currentFrame.roll(pins);
     }
 
     @Override
     public int score() {
         int score = 0;
-        for (int i = 0; i < frames.size(); i++) {
-            Frame frame = frames.get(i);
+        for (int frameNr = 0; frameNr < frames.size(); frameNr++) {
+            Frame frame = frames.get(frameNr);
             score += frame.getScore();
-            if (frame.isSpare() && i + 1 < frames.size()) {
-                score += frames.get(i + 1).roll1;
+
+            if (frame.isSpare() && hasNextFrame(frameNr)) {
+                score += getNextFrame(frameNr).getFirstRollScore();
             }
-            if (frame.isStrike() && i + 1 < frames.size()) {
-                Frame nextFrame = frames.get(i + 1);
-                score += nextFrame.roll1;
-                if (nextFrame.isStrike() && i + 2 < frames.size()) {
-                    score += frames.get(i + 2).roll1;
-                }
-                else if (!nextFrame.isStrike() && nextFrame.isComplete()) {
-                    score += nextFrame.roll2;
+            else if (frame.isStrike() && hasNextFrame(frameNr)) {
+                Frame nextFrame = getNextFrame(frameNr);
+                score += nextFrame.getScore();
+                if (nextFrame.isStrike() && hasSecondNextFrame(frameNr)) {
+                    score += getSecondNextFrame(frameNr).getFirstRollScore();
                 }
             }
         }
         return score;
     }
 
+
+    private boolean hasNextFrame(int frameNr) {
+        return frameNr + 1 < frames.size();
+    }
+
+    private Frame getNextFrame(int frameNr) {
+        return frames.get(frameNr + 1);
+    }
+
+    private boolean hasSecondNextFrame(int frameNr) {
+        return frameNr + 2 < frames.size();
+    }
+
+    private Frame getSecondNextFrame(int frameNr) {
+        return frames.get(frameNr + 2);
+    }
+
+
     private static class Frame {
 
         private static final int UNKNOWN = -1;
         private static final int UNNECESSARY = -2;
 
-        int roll1 = UNKNOWN;
-        int roll2 = UNKNOWN;
-        int roll3 = UNKNOWN;
-        boolean last = false;
+        private final boolean last;
+        private int roll1 = UNKNOWN;
+        private int roll2 = UNKNOWN;
+        private int roll3 = UNKNOWN;
+
+
+        private Frame(boolean last) {
+            this.last = last;
+        }
 
 
         boolean isSpare() {
             return roll1 != UNKNOWN && roll2 != UNKNOWN && roll1 + roll2 == 10;
         }
 
-        void addScore(int score) {
+        void roll(int pins) {
             if (roll1 == UNKNOWN) {
-                roll1 = score;
-                if (score == 10 && !last) {
+                roll1 = pins;
+                if (pins == 10 && !last) {
                     roll2 = UNNECESSARY;
                 }
             }
             else if (roll2 == UNKNOWN){
-                roll2 = score;
+                roll2 = pins;
             }
             else {
-                roll3 = score;
+                roll3 = pins;
             }
         }
 
@@ -81,9 +98,14 @@ public class ProceduralSingleDataStructureBowlingGame implements Game {
         }
 
         public int getScore() {
-            return roll1
-                    + ((roll2 != UNNECESSARY && roll2 != UNKNOWN) ? roll2 : 0)
-                    + (last && roll3 != UNKNOWN ? roll3 : 0);
+            int score = roll1;
+            score += (roll2 != UNNECESSARY && roll2 != UNKNOWN) ? roll2 : 0;
+            score += (last && roll3 != UNKNOWN ? roll3 : 0);
+            return score;
+        }
+
+        public int getFirstRollScore() {
+            return roll1;
         }
     }
 }

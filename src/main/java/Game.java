@@ -1,6 +1,6 @@
 public interface Game {
 
-    void roll(int noOfPins);
+    void roll(int pins);
 
     int score();
 }

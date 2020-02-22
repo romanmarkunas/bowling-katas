@@ -4,45 +4,23 @@ import java.util.List;
 public class InheritanceAndFactoryBowlingGame implements Game {
 
     private final List<Frame> frames = new ArrayList<>();
-    private int currentFrame = 1;
-    private boolean thisFrameRolled = false;
+    private Frame currentFrame = null;
 
     @Override
-    public void roll(int noOfPins) {
-        if (currentFrame == 10) {
-            Frame frame;
-            if (frames.size() < 10) {
-                frame = new LastFrame();
-                frames.add(frame);
+    public void roll(int pins) {
+        if (currentFrame == null || currentFrame.isComplete()) {
+            if (frames.size() == 9) {
+                currentFrame = new LastFrame();
+            }
+            else if (pins == 10) {
+                currentFrame = new StrikeFrame();
             }
             else {
-                frame = frames.get(9);
+                currentFrame = new TwoRollFrame();
             }
-            frame.roll(noOfPins);
+            frames.add(currentFrame);
         }
-        else if (noOfPins == 10) {
-            frames.add(new StrikeFrame());
-            currentFrame++;
-        }
-        else {
-            Frame frame;
-            if (currentFrame > frames.size()) {
-                frame = new TwoRollFrame();
-                frames.add(frame);
-            }
-            else {
-                frame = frames.get(currentFrame - 1);
-            }
-            frame.roll(noOfPins);
-
-            if (thisFrameRolled) {
-                thisFrameRolled = false;
-                currentFrame++;
-            }
-            else {
-                thisFrameRolled = true;
-            }
-        }
+        currentFrame.roll(pins);
     }
 
     @Override
@@ -60,6 +38,8 @@ public class InheritanceAndFactoryBowlingGame implements Game {
         int getRoll1();
 
         int getRoll2();
+
+        boolean isComplete();
 
         int score(List<Frame> consecutiveFrames);
     }
@@ -84,6 +64,11 @@ public class InheritanceAndFactoryBowlingGame implements Game {
         }
 
         @Override
+        public boolean isComplete() {
+            return false;
+        }
+
+        @Override
         public int score(List<Frame> consecutiveFrames) {
             int score = 0;
             for (int roll : rolls) {
@@ -95,9 +80,7 @@ public class InheritanceAndFactoryBowlingGame implements Game {
 
     private static class StrikeFrame implements Frame {
         @Override
-        public void roll(int pins) {
-            throw new IllegalStateException("Creating StrikeFrame assumes single roll of 10");
-        }
+        public void roll(int pins) {}
 
         @Override
         public int getRoll1() {
@@ -107,6 +90,11 @@ public class InheritanceAndFactoryBowlingGame implements Game {
         @Override
         public int getRoll2() {
             throw new IllegalStateException("No second roll on strike frame");
+        }
+
+        @Override
+        public boolean isComplete() {
+            return true;
         }
 
         @Override
@@ -132,6 +120,7 @@ public class InheritanceAndFactoryBowlingGame implements Game {
         private int roll1 = 0;
         private int roll2 = 0;
         private boolean rolledFirst = false;
+        private boolean rolledSecond = false;
 
         @Override
         public void roll(int pins) {
@@ -140,6 +129,7 @@ public class InheritanceAndFactoryBowlingGame implements Game {
                 roll1 = pins;
             }
             else {
+                rolledSecond = true;
                 roll2 = pins;
             }
         }
@@ -152,6 +142,11 @@ public class InheritanceAndFactoryBowlingGame implements Game {
         @Override
         public int getRoll2() {
             return roll2;
+        }
+
+        @Override
+        public boolean isComplete() {
+            return rolledSecond;
         }
 
         @Override
