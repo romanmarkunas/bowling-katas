@@ -1,3 +1,5 @@
+package com.romanmarkunas;
+
 public class ProceduralBowlingGame implements Game {
 
     private static final int MAX_FRAMES = 10;
