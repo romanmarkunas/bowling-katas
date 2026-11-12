@@ -22,62 +22,28 @@ public class BowlingGameTest {
     @Parameterized.Parameters(name = "{index} : {1}")
     public static Collection<Object[]> games() {
         return asList(
-                new Object[] {
+                new Object[]{
                         (Supplier<Game>) ProceduralSingleDataStructureBowlingGame::new,
                         ProceduralSingleDataStructureBowlingGame.class.getSimpleName()
                 },
-                new Object[] {
+                new Object[]{
                         (Supplier<Game>) InheritanceAndFactoryBowlingGame::new,
                         InheritanceAndFactoryBowlingGame.class.getSimpleName()
                 },
-                new Object[] {
+                new Object[]{
                         (Supplier<Game>) ProceduralBowlingGame::new,
                         ProceduralBowlingGame.class.getSimpleName()
                 }
         );
     }
 
-
     @Test
-    public void shouldHaveSameScoreAsPinsRolledAfterFirstRoll() {
-        gameUnderTest.roll(5);
-        assertEquals(5, gameUnderTest.score());
+    public void initialScore() {
+        assertEquals(0, gameUnderTest.score());
     }
 
     @Test
-    public void shouldHaveSameScoreOfSumOfRollsAfter2RollsNoSpare() {
-        gameUnderTest.roll(5);
-        gameUnderTest.roll(3);
-        assertEquals(5 + 3, gameUnderTest.score());
-    }
-
-    @Test
-    public void shouldCorrectlyCalculateScoreAfterSpareAndRoll() {
-        gameUnderTest.roll(7);
-        gameUnderTest.roll(3);
-        gameUnderTest.roll(6);
-        assertEquals(7 + 3 + 6 + 6, gameUnderTest.score());
-    }
-
-    @Test
-    public void shouldCorrectlyCalculateScoreAfterStrikeAnd2Rolls() {
-        gameUnderTest.roll(10);
-        gameUnderTest.roll(3);
-        gameUnderTest.roll(6);
-        assertEquals(10 + 3 + 6 + 3 + 6, gameUnderTest.score());
-    }
-
-    @Test
-    public void shouldCorrectlyCalculateScoreAfter2StrikesAnd2Rolls() {
-        gameUnderTest.roll(10);
-        gameUnderTest.roll(10);
-        gameUnderTest.roll(3);
-        gameUnderTest.roll(6);
-        assertEquals(10 + 10 + 3 + 10 + 3 + 6 + 3 + 6, gameUnderTest.score());
-    }
-
-    @Test
-    public void shouldCorrectlyCalculateWorstGameEver() {
+    public void worstGameEver() {
         for (int i = 0; i < 20; i++) {
             gameUnderTest.roll(0);
         }
@@ -85,7 +51,80 @@ public class BowlingGameTest {
     }
 
     @Test
-    public void shouldCorrectlyCalculateBestGameEver() {
+    public void singleOpenFrame() {
+        gameUnderTest.roll(5);
+        gameUnderTest.roll(3);
+        assertEquals(5 + 3, gameUnderTest.score());
+    }
+
+    @Test
+    public void canAskScoreMidFrame() {
+        gameUnderTest.roll(5);
+        assertEquals(5, gameUnderTest.score());
+    }
+
+    @Test
+    public void spareFollowedByRoll() {
+        gameUnderTest.roll(7);
+        gameUnderTest.roll(3);
+        gameUnderTest.roll(6);
+        assertEquals((7 + 3 + 6) + (6), gameUnderTest.score());
+    }
+
+    @Test
+    public void spareFollowedByOpenFrameProvesOnlyOneRollIsBonus() {
+        gameUnderTest.roll(7);
+        gameUnderTest.roll(3);
+        gameUnderTest.roll(6);
+        gameUnderTest.roll(1);
+        assertEquals((7 + 3 + 6) + (6 + 1), gameUnderTest.score());
+    }
+
+    @Test
+    public void spareWith10In2ndRoll() {
+        gameUnderTest.roll(0);
+        gameUnderTest.roll(10);
+        gameUnderTest.roll(6);
+        gameUnderTest.roll(1);
+        assertEquals((0 + 10 + 6) + (6 + 1), gameUnderTest.score());
+    }
+
+    @Test
+    public void strikeFollowedByOpenFrame() {
+        gameUnderTest.roll(10);
+        gameUnderTest.roll(3);
+        gameUnderTest.roll(6);
+        assertEquals((10 + 3 + 6) + (3 + 6), gameUnderTest.score());
+    }
+
+    @Test
+    public void canAskScoreMidFrameAfterStrike() {
+        gameUnderTest.roll(10);
+        gameUnderTest.roll(4);
+        assertEquals((10 + 4) + (4), gameUnderTest.score());
+    }
+
+    @Test
+    public void twoStrikesFollowedByOpenFrame() {
+        gameUnderTest.roll(10);
+        gameUnderTest.roll(10);
+        gameUnderTest.roll(3);
+        gameUnderTest.roll(6);
+        assertEquals((10 + 10 + 3) + (10 + 3 + 6) + (3 + 6), gameUnderTest.score());
+    }
+
+    @Test
+    public void turkey() {
+        gameUnderTest.roll(10);
+        gameUnderTest.roll(10);
+        gameUnderTest.roll(10);
+        gameUnderTest.roll(1);
+        gameUnderTest.roll(1);
+        assertEquals((10 + 10 + 10) + (10 + 10 + 1) + (10 + 1 + 1) + (1 + 1), gameUnderTest.score());
+    }
+
+    @Test
+    public void perfectGame() {
         for (int i = 0; i < 12; i++) {
             gameUnderTest.roll(10);
         }
@@ -93,7 +132,7 @@ public class BowlingGameTest {
     }
 
     @Test
-    public void shouldCorrectlyCalculate10StrikesAndRoll() {
+    public void almostPerfectGame() {
         for (int i = 0; i < 11; i++) {
             gameUnderTest.roll(10);
         }
@@ -102,13 +141,13 @@ public class BowlingGameTest {
     }
 
     @Test
-    public void shouldCorrectlyCalculateScoreIfNoSpareOrStrikeInLastFrame() {
+    public void openFrameInTheLastFrame() {
         for (int i = 0; i < 9; i++) {
             gameUnderTest.roll(3);
             gameUnderTest.roll(2);
         }
         gameUnderTest.roll(2);
         gameUnderTest.roll(2);
-        assertEquals(49, gameUnderTest.score());
+        assertEquals(9 * (2 + 3) + (2 + 2), gameUnderTest.score());
     }
 }
